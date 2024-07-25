@@ -326,7 +326,7 @@ public class LCDUIExtensions {
 	static void updateButtonSize(StringItem item, StringItemParams p) {
 		checkError(_setStringItemButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
 				p.icon != null ? p.icon.getImage().getHeight() +
-						((p.buttonFlags & KAknButtonNoFrame) != 0 ? 8 : 0) : 0));
+						((p.buttonFlags & KAknButtonNoFrame) == 0 ? 8 : 0) : 0));
 		item.setPreferredSize(640, -1);
 	}
 	

@@ -17,19 +17,23 @@ LOCAL_C void SetStringItemParamsL
 {
 	CMIDStringItem* control = (CMIDStringItem*) aStringItem;
 	if (aLabelColorSet) {
-		TRgb labelColor = TRgb(aLabelColor);
-		CMIDItemLabel* labelControl = (CMIDItemLabel*) control->ComponentControl(0);
-		if (labelControl != NULL) {
-			*(unsigned int *)((unsigned int)labelControl + 88u) = labelColor.Internal();
-//			AknLayoutUtils::OverrideControlColorL(*labelControl, EColorLabelText, labelColor);
-			TInt len = labelControl->CountComponentControls();
+		TRgb color = TRgb(aLabelColor);
+		CMIDItemLabel* label = (CMIDItemLabel*) control->ComponentControl(0);
+		if (label != NULL) {
+			// label->iColor = color;
+			*(unsigned int *)((unsigned int)label + 88u) = color.Internal();
+			
+			AknLayoutUtils::OverrideControlColorL(*label, EColorLabelText, color);
+			TInt len = label->CountComponentControls();
 			for (TInt i = 0; i < len; ++i) {
-				CEikLabel* l = (CEikLabel*) labelControl->ComponentControl(i);
-				l->OverrideColorL(EColorLabelText, labelColor);
-				l->DrawNow();
+				CEikLabel* l = (CEikLabel*) label->ComponentControl(i);
+				l->OverrideColorL(EColorLabelText, color);
+				if (l->DrawableWindow()) l->DrawNow();
 			}
+			if (label->DrawableWindow()) label->DrawNow();
 		}
 	}
+	
 	if (!aContentColorSet && !aStrikethrough) return;
 	CMIDItemLabel* label = (CMIDItemLabel*) control->ComponentControl(1);
 	if (label == NULL) {
@@ -40,7 +44,8 @@ LOCAL_C void SetStringItemParamsL
 	if (aContentColorSet) {
 		// label->iColor = color;
 		*(unsigned int *)((unsigned int)label + 88u) = color.Internal();
-//		AknLayoutUtils::OverrideControlColorL(*label, EColorLabelText, color);
+		
+		AknLayoutUtils::OverrideControlColorL(*label, EColorLabelText, color);
 	}
 	TInt len = label->CountComponentControls();
 	for (TInt i = 0; i < len; ++i) {
@@ -48,11 +53,12 @@ LOCAL_C void SetStringItemParamsL
 		if (t == NULL) continue;
 		if (CEikLabel* l = dynamic_cast<CEikLabel*>(t)) {
 			if (aContentColorSet)
-				t->OverrideColorL(EColorLabelText, color);
+				l->OverrideColorL(EColorLabelText, color);
 			if (aStrikethrough)
 				l->SetStrikethrough(ETrue);
-			t->DrawNow();
+			if (l->DrawableWindow()) l->DrawDeferred();
 		}
+		if (label->DrawableWindow()) label->DrawNow();
 	}
 }
 
