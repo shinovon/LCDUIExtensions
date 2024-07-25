@@ -134,8 +134,8 @@ public class LCDUIExtensions {
 	}
 
 	public static void setStrikethrough(StringItem item, boolean strikethrough) {
-		if (item.getAppearanceMode() != Item.PLAIN) {
-			throw new IllegalArgumentException("StringItem appearance mode must be set to plain");
+		if (item.getAppearanceMode() == Item.BUTTON) {
+			throw new IllegalArgumentException("StringItem must not be button");
 		}
 		synchronized (components) {
 			StringItemParams p = null;
@@ -148,6 +148,14 @@ public class LCDUIExtensions {
 			p.strikethrough = strikethrough;
 			update(item, p, false);
 		}
+	}
+	
+	public static void setUnderline(StringItem item, boolean underline) {
+		if (item.getAppearanceMode() == Item.BUTTON) {
+			throw new IllegalArgumentException("StringItem must not be button");
+		}
+		ToolkitInvoker inv = ToolkitInvoker.getToolkitInvoker();
+		checkError(_setStringItemUnderlined(inv.itemGetHandle(item), inv.toolkitGetHandle(inv.getToolkit()), underline));
 	}
 	
 	// use with LAYOUT_EXPAND
@@ -175,7 +183,7 @@ public class LCDUIExtensions {
 		}
 		
 		ToolkitInvoker inv = ToolkitInvoker.getToolkitInvoker();
-		checkError(_setStringItemButtonIcon(inv.itemGetHandle(item),
+		checkError(_setButtonIcon(inv.itemGetHandle(item),
 				inv.toolkitGetHandle(inv.getToolkit()),
 				image != null ? inv.itemGetHandle(image) : 0,
 						p.buttonFlags));
@@ -207,14 +215,14 @@ public class LCDUIExtensions {
 		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("StringItem must be button");
 		}
-		checkError(_setStringItemButtonTooltipText(getItemHandle(item), getToolkitHandle(), text));
+		checkError(_setButtonTooltipText(getItemHandle(item), getToolkitHandle(), text));
 	}
 	
 	public static void setButtonTooltipText(ImageItem item, String text) {
 		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("ImageItem must be button");
 		}
-		checkError(_setImageItemButtonTooltipText(getItemHandle(item), getToolkitHandle(), text));
+		checkError(_setImageTooltipText(getItemHandle(item), getToolkitHandle(), text));
 	}
 	
 	public static void setButtonFlags(StringItem item, int flags) {
@@ -234,7 +242,7 @@ public class LCDUIExtensions {
 			}
 		}
 		p.buttonFlags = flags;
-		checkError(_setStringItemButtonFlags(getItemHandle(item), getToolkitHandle(), flags));
+		checkError(_setButtonFlags(getItemHandle(item), getToolkitHandle(), flags));
 		updateButtonSize(item, p);
 		
 		_LCDUIInvoker1.itemRefreshForm(item);
@@ -253,13 +261,13 @@ public class LCDUIExtensions {
 		if (horizontal < 0 || horizontal > 4) {
 			throw new IllegalArgumentException("icon");
 		}
-		checkError(_setStringItemButtonAlignment(getItemHandle(item), getToolkitHandle(),
+		checkError(_setButtonAlignment(getItemHandle(item), getToolkitHandle(),
 				horizontal, vertical, icon));
 	}
 	
 	public static void setButtonText(StringItem item, String text) {
 		if (text == null) text = "";
-		checkError(_setStringItemButtonText(getItemHandle(item), getToolkitHandle(), text));
+		checkError(_setButtonText(getItemHandle(item), getToolkitHandle(), text));
 		
 		_LCDUIInvoker1.itemRefreshForm(item);
 	}
@@ -283,7 +291,7 @@ public class LCDUIExtensions {
 		p.buttonTextColor = color;
 		p.buttonColorSet = true;
 		
-		checkError(_setStringItemButtonTextColor(getItemHandle(item), getToolkitHandle(), color));
+		checkError(_setButtonTextColor(getItemHandle(item), getToolkitHandle(), color));
 	}
 	
 	public static void unregisterExtension(Object component) {
@@ -324,7 +332,7 @@ public class LCDUIExtensions {
 	//
 
 	static void updateButtonSize(StringItem item, StringItemParams p) {
-		checkError(_setStringItemButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
+		checkError(_setButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
 				p.icon != null ? p.icon.getImage().getHeight() +
 						((p.buttonFlags & KAknButtonNoFrame) == 0 ? 12 : 0) : 0));
 		item.setPreferredSize(640, -1);
@@ -354,7 +362,7 @@ public class LCDUIExtensions {
 		if (p.buttonColorSet) {
 			if (p.buttonColorSet) {
 				checkError(
-				_setStringItemButtonTextColor(
+				_setButtonTextColor(
 						getItemHandle(item), getToolkitHandle(),
 						p.buttonTextColor
 				));
@@ -403,13 +411,14 @@ public class LCDUIExtensions {
 			boolean labelColorSet, boolean contentColorSet,
 			boolean strikethrough);
 
-	private static native int _setStringItemButtonTooltipText(int item, int toolkit, String text);
-	private static native int _setStringItemButtonIcon(int item, int toolkit, int image, int flags);
-	private static native int _setImageItemButtonTooltipText(int item, int toolkit, String text);
-	private static native int _setStringItemButtonFlags(int item, int toolkit, int flags);
-	private static native int _setStringItemButtonAlignment(int item, int toolkit, int hor, int ver, int icon);
-	private static native int _setStringItemButtonText(int item, int toolkit, String text);
-	private static native int _setStringItemButtonTextColor(int item, int toolkit, int color);
-	private static native int _setStringItemButtonMinimumSize(int item, int toolkit, int height);
+	private static native int _setButtonTooltipText(int item, int toolkit, String text);
+	private static native int _setButtonIcon(int item, int toolkit, int image, int flags);
+	private static native int _setImageTooltipText(int item, int toolkit, String text);
+	private static native int _setButtonFlags(int item, int toolkit, int flags);
+	private static native int _setButtonAlignment(int item, int toolkit, int hor, int ver, int icon);
+	private static native int _setButtonText(int item, int toolkit, String text);
+	private static native int _setButtonTextColor(int item, int toolkit, int color);
+	private static native int _setButtonMinimumSize(int item, int toolkit, int height);
+	private static native int _setStringItemUnderlined(int item, int toolkit, boolean underlined);
 
 }

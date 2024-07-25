@@ -84,7 +84,7 @@ LOCAL_C void SetStringItemTooltipL(MMIDStringItem* aStringItem, const TDesC* aTe
 	User::Leave(KErrNotSupported);
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemButtonTooltipText
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTooltipText
 (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jstring aText)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
@@ -106,7 +106,7 @@ LOCAL_C void SetImageItemTooltipL(MMIDImageItem* aImageItem, const TDesC* aText)
 	}
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageItemButtonTooltipText
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageTooltipText
 (JNIEnv *aEnv, jclass, jint aImageItem, jint aToolkit, jstring aText)
 {
 	MMIDImageItem* imageItem = MIDUnhandObject<MMIDImageItem>(aImageItem);
@@ -156,7 +156,7 @@ LOCAL_C void SetStringItemImageL(MMIDStringItem* aStringItem, MMIDImageItem* aIm
 	User::Leave(KErrNotSupported);
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemButtonIcon
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonIcon
  (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jint aImageItem, jint aFlags)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
@@ -176,7 +176,7 @@ LOCAL_C void SetStringItemButtonFlagsL(MMIDStringItem* aStringItem, TInt aFlags)
 	User::Leave(KErrNotSupported);
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemButtonFlags
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFlags
  (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jint aFlags)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
@@ -197,7 +197,7 @@ LOCAL_C void SetStringItemButtonAlignmentL(MMIDStringItem* aStringItem, TInt aHo
 	User::Leave(KErrNotSupported);
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemButtonAlignment
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonAlignment
  (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jint aHorizontal, jint aVertical, jint aIcon)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
@@ -216,7 +216,7 @@ LOCAL_C void SetStringItemButtonTextL(MMIDStringItem* aStringItem, const TDesC* 
 	User::Leave(KErrNotSupported);
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemButtonText
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonText
  (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jstring aText)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
@@ -237,7 +237,7 @@ LOCAL_C void SetStringItemButtonColorL(MMIDStringItem* aStringItem, TLogicalColo
 	User::Leave(KErrNotSupported);
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemButtonTextColor
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTextColor
  (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jint aColor)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
@@ -245,7 +245,7 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringIte
 	return toolkit->ExecuteTrap(&SetStringItemButtonColorL, stringItem, EColorButtonText, aColor);
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemButtonFaceColor
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFaceColor
  (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jint aColor)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
@@ -266,10 +266,29 @@ LOCAL_C void SetStringItemButtonMinimumSizeL(MMIDStringItem* aStringItem, TInt a
 	User::Leave(KErrNotSupported);
 }
 
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemButtonMinimumSize
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonMinimumSize
  (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jint aHeight)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
 	return toolkit->ExecuteTrap(&SetStringItemButtonMinimumSizeL, stringItem, aHeight);
+}
+
+LOCAL_C void SetStringItemUnderlinedL(MMIDStringItem* aStringItem, TBool aUnderlined) {
+	CCoeControl* control = (CMIDStringItem*) aStringItem;
+	control = control->ComponentControl(1);
+	if (CEikLabel* label = dynamic_cast<CEikLabel*>(control)) {
+		label->SetUnderlining(aUnderlined);
+		if (label->DrawableWindow()) label->DrawNow();
+		return;
+	}
+	User::Leave(KErrNotSupported);
+}
+
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemUnderlined
+ (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jboolean aUnderline)
+{
+	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
+	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
+	return toolkit->ExecuteTrap(&SetStringItemUnderlinedL, stringItem, (TBool) (aUnderline == JNI_TRUE));
 }
