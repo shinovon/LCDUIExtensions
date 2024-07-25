@@ -135,7 +135,7 @@ LOCAL_C void SetButtonImageL(MMIDStringItem* aStringItem, MMIDImageItem* aImageI
 		}
 		button->SetButtonFlags(aFlags);
 		button->State()->SetIcon(icon);
-		if (button->DrawableWindow()
+		if (button->DrawableWindow())
 			button->DrawNow();
 		return;
 	}
