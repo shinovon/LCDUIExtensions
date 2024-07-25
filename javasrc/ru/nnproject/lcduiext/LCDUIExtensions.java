@@ -9,7 +9,7 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.LCDUIInvoker1;
+import javax.microedition.lcdui._LCDUIInvoker1;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.midlet.MIDlet;
 
@@ -83,6 +83,8 @@ public class LCDUIExtensions {
 		}
 	}
 	
+	//
+	
 	public static boolean isSupported() {
 		return loaded;
 	}
@@ -91,8 +93,10 @@ public class LCDUIExtensions {
 		return 1;
 	}
 	
+	//
+	
 	public static void setColor(StringItem item, int color) {
-		if (item.getAppearanceMode() == Item.BUTTON && LCDUIInvoker1.getCommandCount(item) > 0) {
+		if (item.getAppearanceMode() == Item.BUTTON && _LCDUIInvoker1.getCommandCount(item) > 0) {
 			setButtonTextColor(item, color);
 			return;
 		}
@@ -111,7 +115,7 @@ public class LCDUIExtensions {
 			p.contentColorSet = true;
 		}
 		update(item, p, false);
-		LCDUIInvoker1.itemRefreshForm(item);
+		_LCDUIInvoker1.itemRefreshForm(item);
 	}
 	
 	public static void setLabelColor(StringItem item, int color) {
@@ -152,7 +156,7 @@ public class LCDUIExtensions {
 	}
 
 	public static void setButtonIcon(StringItem item, ImageItem image) {
-		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("ImageItem must be button");
 		}
 		StringItemParams p = null;
@@ -177,7 +181,7 @@ public class LCDUIExtensions {
 						p.buttonFlags));
 		updateButtonSize(item, p);
 		
-		LCDUIInvoker1.itemRefreshForm(item);
+		_LCDUIInvoker1.itemRefreshForm(item);
 	}
 	
 	// for calling setImage()
@@ -200,21 +204,21 @@ public class LCDUIExtensions {
 	}
 	
 	public static void setButtonTooltipText(StringItem item, String text) {
-		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("StringItem must be button");
 		}
 		checkError(_setStringItemButtonTooltipText(getItemHandle(item), getToolkitHandle(), text));
 	}
 	
 	public static void setButtonTooltipText(ImageItem item, String text) {
-		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("ImageItem must be button");
 		}
 		checkError(_setImageItemButtonTooltipText(getItemHandle(item), getToolkitHandle(), text));
 	}
 	
 	public static void setButtonFlags(StringItem item, int flags) {
-		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("StringItem must be button");
 		}
 		if ((flags & ~(KAknButtonTextLeft | KAknButtonNoFrame | KAknButtonSizeFitText)) != 0) {
@@ -233,11 +237,11 @@ public class LCDUIExtensions {
 		checkError(_setStringItemButtonFlags(getItemHandle(item), getToolkitHandle(), flags));
 		updateButtonSize(item, p);
 		
-		LCDUIInvoker1.itemRefreshForm(item);
+		_LCDUIInvoker1.itemRefreshForm(item);
 	}
 	
 	public static void setButtonAlignment(StringItem item, int horizontal, int vertical, int icon) {
-		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("StringItem must be button");
 		}
 		if (horizontal < 0 || horizontal > 2) {
@@ -257,11 +261,11 @@ public class LCDUIExtensions {
 		if (text == null) text = "";
 		checkError(_setStringItemButtonText(getItemHandle(item), getToolkitHandle(), text));
 		
-		LCDUIInvoker1.itemRefreshForm(item);
+		_LCDUIInvoker1.itemRefreshForm(item);
 	}
 	
 	public static void setButtonTextColor(StringItem item, int color) {
-		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("StringItem must be button");
 		}
 
@@ -288,7 +292,7 @@ public class LCDUIExtensions {
 			if (component instanceof Form) {
 				Form form = (Form) component;
 				int size = form.size();
-				while (size > 0) components.remove(LCDUIInvoker1.formGet(form, size--));
+				while (size > 0) components.remove(_LCDUIInvoker1.formGet(form, size--));
 			}
 		}
 	}
@@ -301,7 +305,11 @@ public class LCDUIExtensions {
 	
 	public static void update(Item item) {
 		update(item, null, true);
-		LCDUIInvoker1.itemRefreshForm(item);
+		_LCDUIInvoker1.itemRefreshForm(item);
+	}
+	
+	public static Displayable getItemContainer(Item item) {
+		return _LCDUIInvoker1.getItemScreen(item);
 	}
 	
 	/**
@@ -313,8 +321,9 @@ public class LCDUIExtensions {
 	    return displayable != null && displayable.isShown();
 	}
 	
+	//
 
-	private static void updateButtonSize(StringItem item, StringItemParams p) {
+	static void updateButtonSize(StringItem item, StringItemParams p) {
 		checkError(_setStringItemButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
 				p.icon != null ? p.icon.getImage().getHeight() +
 						((p.buttonFlags & KAknButtonNoFrame) != 0 ? 8 : 0) : 0));

@@ -1,6 +1,6 @@
 package javax.microedition.lcdui;
 
-public class LCDUIInvoker1 {
+public class _LCDUIInvoker1 {
 	
 	public static int getCommandCount(Item item) {
 		return item.iCommands.count();
@@ -29,6 +29,10 @@ public class LCDUIInvoker1 {
 	
 	public static void itemUpdateForm(Item item) {
 		item.UpdateForm();
+	}
+	
+	public static Screen getItemScreen(Item item) {
+		return item.iScreen;
 	}
 
 }
