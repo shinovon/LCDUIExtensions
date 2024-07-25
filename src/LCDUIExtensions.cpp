@@ -19,7 +19,7 @@ LOCAL_C void SetStringItemParamsL
 	if (aLabelColorSet) {
 		TRgb color = TRgb(aLabelColor);
 		CMIDItemLabel* label = (CMIDItemLabel*) control->ComponentControl(0);
-		if (label != NULL) {
+		if (label) {
 			// label->iColor = color;
 			*(unsigned int *)((unsigned int)label + 88u) = color.Internal();
 			
@@ -212,7 +212,7 @@ LOCAL_C void SetButtonColorL(MMIDStringItem* aStringItem, TLogicalColor aType, T
 	TRgb rgb = TRgb(aColor);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		control->OverrideColorL(aType, rgb);
-		if (control->DrawableWindow()) control->DrawNow();
+		if (button->DrawableWindow()) control->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -241,7 +241,7 @@ LOCAL_C void SetButtonMinimumSizeL(MMIDStringItem* aStringItem, TInt aHeight) {
 		TSize old = control->Size();
 		TSize min = control->MinimumSize();
 		control->SetSize(TSize(old.iWidth, aHeight > 0 ? aHeight : min.iHeight));
-		control->DrawNow();
+		if (button->DrawableWindow()) control->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -257,13 +257,16 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonMin
 
 LOCAL_C void SetUnderlinedL(MMIDStringItem* aStringItem, TBool aUnderlined) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
-	control = control->ComponentControl(1);
-	if (CEikLabel* label = dynamic_cast<CEikLabel*>(control)) {
-		label->SetUnderlining(aUnderlined);
+	CMIDItemLabel* label = (CMIDItemLabel*) control->ComponentControl(0);
+	if (label) {
+		TInt len = label->CountComponentControls();
+		for (TInt i = 0; i < len; ++i) {
+			CEikLabel* l = (CEikLabel*) label->ComponentControl(i);
+			l->SetUnderlining(aUnderlined);
+			if (l->DrawableWindow()) l->DrawNow();
+		}
 		if (label->DrawableWindow()) label->DrawNow();
-		return;
 	}
-	User::Leave(KErrNotSupported);
 }
 
 JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemUnderlined
