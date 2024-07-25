@@ -115,26 +115,7 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageTool
 	return toolkit->ExecuteTrap(&SetImageItemTooltipL, imageItem, (const TDesC*)&text);
 }
 
-//LOCAL_C void SetImageItemTextL(MMIDImageItem* aImageItem, const TDesC* aText) {
-//	CCoeControl* control = (CMIDImageItem*) aImageItem;
-//	control = control->ComponentControl(1);
-//	CAknButton* button = (CAknButton*) control;
-//	button->SetButtonFlags(KAknButtonSizeFitText);
-//	button->State()->SetTextL(*aText);
-//	button->SetSize(button->MinimumSize());
-//	button->DrawNow();
-//}
-//
-//JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageItemButtonText
-//(JNIEnv *aEnv, jclass, jint aImageItem, jint aToolkit, jstring aText)
-//{
-//	MMIDImageItem* imageItem = MIDUnhandObject<MMIDImageItem>(aImageItem);
-//	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-//	RJString text(*aEnv,aText);
-//	return toolkit->ExecuteTrap(&SetImageItemTextL, imageItem, (const TDesC*)&text);
-//}
-
-LOCAL_C void SetStringItemImageL(MMIDStringItem* aStringItem, MMIDImageItem* aImageItem, TInt aFlags) {
+LOCAL_C void SetButtonImageL(MMIDStringItem* aStringItem, MMIDImageItem* aImageItem, TInt aFlags) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
@@ -150,7 +131,7 @@ LOCAL_C void SetStringItemImageL(MMIDStringItem* aStringItem, MMIDImageItem* aIm
 		}
 		button->SetButtonFlags(aFlags);
 		button->State()->SetIcon(icon);
-		button->DrawNow();
+		if (button->DrawableWindow()) button->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -162,15 +143,15 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonIco
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
 	MMIDImageItem* imageItem = MIDUnhandObject<MMIDImageItem>(aImageItem);
-	return toolkit->ExecuteTrap(&SetStringItemImageL, stringItem, imageItem, aFlags);
+	return toolkit->ExecuteTrap(&SetButtonImageL, stringItem, imageItem, aFlags);
 }
 
-LOCAL_C void SetStringItemButtonFlagsL(MMIDStringItem* aStringItem, TInt aFlags) {
+LOCAL_C void SetButtonFlagsL(MMIDStringItem* aStringItem, TInt aFlags) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		button->SetButtonFlags(aFlags);
-		button->DrawNow();
+		if (button->DrawableWindow()) button->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -181,17 +162,17 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFla
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	return toolkit->ExecuteTrap(&SetStringItemButtonFlagsL, stringItem, aFlags);
+	return toolkit->ExecuteTrap(&SetButtonFlagsL, stringItem, aFlags);
 }
 
-LOCAL_C void SetStringItemButtonAlignmentL(MMIDStringItem* aStringItem, TInt aHorizontal, TInt aVertical, TInt aIcon) {
+LOCAL_C void SetButtonAlignmentL(MMIDStringItem* aStringItem, TInt aHorizontal, TInt aVertical, TInt aIcon) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		button->SetTextHorizontalAlignment((CGraphicsContext::TTextAlign) aHorizontal);
 		button->SetTextVerticalAlignment((CAknButton::TAlignment) aVertical);
 		button->SetTextAndIconAlignment((CAknButton::TTextAndIconAlignment) aIcon);
-		button->DrawNow();
+		if (button->DrawableWindow()) button->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -202,15 +183,15 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonAli
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	return toolkit->ExecuteTrap(&SetStringItemButtonAlignmentL, stringItem, aHorizontal, aVertical, aIcon);
+	return toolkit->ExecuteTrap(&SetButtonAlignmentL, stringItem, aHorizontal, aVertical, aIcon);
 }
 
-LOCAL_C void SetStringItemButtonTextL(MMIDStringItem* aStringItem, const TDesC* aText) {
+LOCAL_C void SetButtonTextL(MMIDStringItem* aStringItem, const TDesC* aText) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		button->State()->SetTextL(*aText);
-		button->DrawNow();
+		if (button->DrawableWindow()) button->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -222,16 +203,16 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTex
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
 	RJString text(*aEnv,aText);
-	return toolkit->ExecuteTrap(&SetStringItemButtonTextL, stringItem, (const TDesC*)&text);
+	return toolkit->ExecuteTrap(&SetButtonTextL, stringItem, (const TDesC*)&text);
 }
 
-LOCAL_C void SetStringItemButtonColorL(MMIDStringItem* aStringItem, TLogicalColor aType, TInt aColor) {
+LOCAL_C void SetButtonColorL(MMIDStringItem* aStringItem, TLogicalColor aType, TInt aColor) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	TRgb rgb = TRgb(aColor);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		control->OverrideColorL(aType, rgb);
-		control->DrawNow();
+		if (control->DrawableWindow()) control->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -242,7 +223,7 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTex
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	return toolkit->ExecuteTrap(&SetStringItemButtonColorL, stringItem, EColorButtonText, aColor);
+	return toolkit->ExecuteTrap(&SetButtonColorL, stringItem, EColorButtonText, aColor);
 }
 
 JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFaceColor
@@ -250,10 +231,10 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFac
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	return toolkit->ExecuteTrap(&SetStringItemButtonColorL, stringItem, EColorButtonFaceClear, aColor);
+	return toolkit->ExecuteTrap(&SetButtonColorL, stringItem, EColorButtonFaceClear, aColor);
 }
 
-LOCAL_C void SetStringItemButtonMinimumSizeL(MMIDStringItem* aStringItem, TInt aHeight) {
+LOCAL_C void SetButtonMinimumSizeL(MMIDStringItem* aStringItem, TInt aHeight) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
@@ -271,10 +252,10 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonMin
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	return toolkit->ExecuteTrap(&SetStringItemButtonMinimumSizeL, stringItem, aHeight);
+	return toolkit->ExecuteTrap(&SetButtonMinimumSizeL, stringItem, aHeight);
 }
 
-LOCAL_C void SetStringItemUnderlinedL(MMIDStringItem* aStringItem, TBool aUnderlined) {
+LOCAL_C void SetUnderlinedL(MMIDStringItem* aStringItem, TBool aUnderlined) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	if (CEikLabel* label = dynamic_cast<CEikLabel*>(control)) {
@@ -290,5 +271,5 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringIte
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	return toolkit->ExecuteTrap(&SetStringItemUnderlinedL, stringItem, (TBool) (aUnderline == JNI_TRUE));
+	return toolkit->ExecuteTrap(&SetUnderlinedL, stringItem, (TBool) (aUnderline == JNI_TRUE));
 }
