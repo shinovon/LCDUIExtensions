@@ -20,7 +20,7 @@ LOCAL_C void SetStringItemParamsL
 		TRgb labelColor = TRgb(aLabelColor);
 		CMIDItemLabel* labelControl = (CMIDItemLabel*) control->ComponentControl(0);
 		if (labelControl != NULL) {
-			*(unsigned int *)((unsigned int)labelControl + 88u) = color.Internal();
+			*(unsigned int *)((unsigned int)labelControl + 88u) = labelColor.Internal();
 //			AknLayoutUtils::OverrideControlColorL(*labelControl, EColorLabelText, labelColor);
 			TInt len = labelControl->CountComponentControls();
 			for (TInt i = 0; i < len; ++i) {
