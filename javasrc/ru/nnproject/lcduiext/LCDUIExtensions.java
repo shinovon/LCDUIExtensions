@@ -48,42 +48,7 @@ public class LCDUIExtensions {
 	static final Object updateLock = new Object();
 	static boolean loaded;
 	
-	static {
-		try {
-			Jvm.loadSystemLibrary("lcduiext");
-			loaded = true;
-			new Thread("LCDUIExtensions") {
-				public void run() {
-					try {
-						while (true) {
-							synchronized (updateLock) {
-								updateLock.wait(UPDATE_INTERVAL);
-							}
-							if (!isForeground()) continue;
-							synchronized (components) {
-								Object k;
-								for (Enumeration e = components.keys(); e.hasMoreElements(); ) {
-									k = e.nextElement();
-									if (k instanceof ImageItem) continue;
-									try {
-										update(k, components.get(k), false);
-									} catch (RuntimeException ex) {
-										ex.printStackTrace();
-									}
-								}
-							}
-						}
-					} catch (Throwable e) {
-						e.printStackTrace();
-					}
-				}
-			}.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	//
+	// public
 	
 	public static boolean isSupported() {
 		return loaded;
@@ -92,8 +57,6 @@ public class LCDUIExtensions {
 	public static int getVersion() {
 		return 1;
 	}
-	
-	//
 	
 	public static void setColor(StringItem item, int color) {
 		if (item.getAppearanceMode() == Item.BUTTON && _LCDUIInvoker1.getCommandCount(item) > 0) {
@@ -276,9 +239,6 @@ public class LCDUIExtensions {
 		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("StringItem must be button");
 		}
-
-		color = toBGR(color);
-
 		StringItemParams p = null;
 		synchronized (components) {
 			try {
@@ -288,7 +248,7 @@ public class LCDUIExtensions {
 				components.put(item, p = new StringItemParams());
 			}
 		}
-		p.buttonTextColor = color;
+		p.buttonTextColor = color = toBGR(color);
 		p.buttonColorSet = true;
 		
 		checkError(_setButtonTextColor(getItemHandle(item), getToolkitHandle(), color));
@@ -329,13 +289,13 @@ public class LCDUIExtensions {
 	    return displayable != null && displayable.isShown();
 	}
 	
-	//
+	// private
 
 	static void updateButtonSize(StringItem item, StringItemParams p) {
 		checkError(_setButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
 				p.icon != null ? p.icon.getImage().getHeight() +
 						((p.buttonFlags & KAknButtonNoFrame) == 0 ? 12 : 0) : 0));
-		item.setPreferredSize(640, -1);
+		item.setPreferredSize(640, -1); // will be limited to actual screen width in native
 	}
 	
 	static void update(Object item, Object p, boolean forced) {
@@ -356,6 +316,7 @@ public class LCDUIExtensions {
 		} catch (Exception e) {
 			return;
 		}
+		if (p == null) return;
 		if (forced) {
 			updateButtonSize(item, p);
 		}
@@ -386,7 +347,6 @@ public class LCDUIExtensions {
 	
 	static void checkError(int r) {
 		if (r < 0) {
-			new Exception("check " + r).printStackTrace();;
 			throw new RuntimeException("LCDUIExtensions native error " + r);
 		}
 	}
@@ -420,5 +380,40 @@ public class LCDUIExtensions {
 	private static native int _setButtonTextColor(int item, int toolkit, int color);
 	private static native int _setButtonMinimumSize(int item, int toolkit, int height);
 	private static native int _setStringItemUnderlined(int item, int toolkit, boolean underlined);
+	
+	static {
+		try {
+			Jvm.loadSystemLibrary("lcduiext");
+			loaded = true;
+			new Thread("LCDUIExtensions") {
+				public void run() {
+					try {
+						while (true) {
+							synchronized (updateLock) {
+								updateLock.wait(UPDATE_INTERVAL);
+							}
+							if (!isForeground()) continue;
+							synchronized (components) {
+								Object k;
+								for (Enumeration e = components.keys(); e.hasMoreElements(); ) {
+									k = e.nextElement();
+									if (k instanceof ImageItem) continue;
+									try {
+										update(k, components.get(k), false);
+									} catch (RuntimeException ex) {
+										ex.printStackTrace();
+									}
+								}
+							}
+						}
+					} catch (Throwable e) {
+						e.printStackTrace();
+					}
+				}
+			}.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }

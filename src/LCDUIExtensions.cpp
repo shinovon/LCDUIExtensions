@@ -28,9 +28,11 @@ LOCAL_C void SetStringItemParamsL
 			for (TInt i = 0; i < len; ++i) {
 				CEikLabel* l = (CEikLabel*) label->ComponentControl(i);
 				l->OverrideColorL(EColorLabelText, color);
-				if (l->DrawableWindow()) l->DrawNow();
+				if (l->DrawableWindow())
+					l->DrawNow();
 			}
-			if (label->DrawableWindow()) label->DrawNow();
+			if (label->DrawableWindow())
+				label->DrawNow();
 		}
 	}
 	
@@ -56,9 +58,11 @@ LOCAL_C void SetStringItemParamsL
 				l->OverrideColorL(EColorLabelText, color);
 			if (aStrikethrough)
 				l->SetStrikethrough(ETrue);
-			if (l->DrawableWindow()) l->DrawDeferred();
+			if (l->DrawableWindow())
+				l->DrawDeferred();
 		}
-		if (label->DrawableWindow()) label->DrawNow();
+		if (label->DrawableWindow())
+			label->DrawNow();
 	}
 }
 
@@ -131,7 +135,8 @@ LOCAL_C void SetButtonImageL(MMIDStringItem* aStringItem, MMIDImageItem* aImageI
 		}
 		button->SetButtonFlags(aFlags);
 		button->State()->SetIcon(icon);
-		if (button->DrawableWindow()) button->DrawNow();
+		if (button->DrawableWindow()
+			button->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -151,7 +156,8 @@ LOCAL_C void SetButtonFlagsL(MMIDStringItem* aStringItem, TInt aFlags) {
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		button->SetButtonFlags(aFlags);
-		if (button->DrawableWindow()) button->DrawNow();
+		if (button->DrawableWindow())
+			button->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -172,7 +178,8 @@ LOCAL_C void SetButtonAlignmentL(MMIDStringItem* aStringItem, TInt aHorizontal, 
 		button->SetTextHorizontalAlignment((CGraphicsContext::TTextAlign) aHorizontal);
 		button->SetTextVerticalAlignment((CAknButton::TAlignment) aVertical);
 		button->SetTextAndIconAlignment((CAknButton::TTextAndIconAlignment) aIcon);
-		if (button->DrawableWindow()) button->DrawNow();
+		if (button->DrawableWindow())
+			button->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -191,7 +198,8 @@ LOCAL_C void SetButtonTextL(MMIDStringItem* aStringItem, const TDesC* aText) {
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		button->State()->SetTextL(*aText);
-		if (button->DrawableWindow()) button->DrawNow();
+		if (button->DrawableWindow())
+			button->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -212,7 +220,8 @@ LOCAL_C void SetButtonColorL(MMIDStringItem* aStringItem, TLogicalColor aType, T
 	TRgb rgb = TRgb(aColor);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		control->OverrideColorL(aType, rgb);
-		if (button->DrawableWindow()) control->DrawNow();
+		if (button->DrawableWindow())
+			control->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -241,7 +250,8 @@ LOCAL_C void SetButtonMinimumSizeL(MMIDStringItem* aStringItem, TInt aHeight) {
 		TSize old = control->Size();
 		TSize min = control->MinimumSize();
 		control->SetSize(TSize(old.iWidth, aHeight > 0 ? aHeight : min.iHeight));
-		if (button->DrawableWindow()) control->DrawNow();
+		if (button->DrawableWindow())
+			control->DrawNow();
 		return;
 	}
 	User::Leave(KErrNotSupported);
@@ -263,9 +273,11 @@ LOCAL_C void SetUnderlinedL(MMIDStringItem* aStringItem, TBool aUnderlined) {
 		for (TInt i = 0; i < len; ++i) {
 			CEikLabel* l = (CEikLabel*) label->ComponentControl(i);
 			l->SetUnderlining(aUnderlined);
-			if (l->DrawableWindow()) l->DrawNow();
+			if (l->DrawableWindow())
+				l->DrawNow();
 		}
-		if (label->DrawableWindow()) label->DrawNow();
+		if (label->DrawableWindow())
+			label->DrawNow();
 	}
 }
 
@@ -274,5 +286,6 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringIte
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	return toolkit->ExecuteTrap(&SetUnderlinedL, stringItem, (TBool) (aUnderline == JNI_TRUE));
+	TBool underline = aUnderline == JNI_TRUE;
+	return toolkit->ExecuteTrap(&SetUnderlinedL, stringItem, underline);
 }
