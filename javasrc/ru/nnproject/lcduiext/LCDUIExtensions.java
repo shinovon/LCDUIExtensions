@@ -1,5 +1,6 @@
 package ru.nnproject.lcduiext;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.microedition.lcdui.Display;
@@ -51,33 +52,32 @@ public class LCDUIExtensions {
 		try {
 			Jvm.loadSystemLibrary("lcduiext");
 			loaded = true;
-//			new Thread("LCDUIExtensions") {
-//				public void run() {
-//					try {
-//						while (true) {
-//							synchronized(updateLock) {
-//								updateLock.wait(UPDATE_INTERVAL);
-//							}
-//							if (!isForeground()) continue;
-//							synchronized(components) {
-//								Object k;
-//								for (Enumeration e = components.keys(); e.hasMoreElements(); ) {
-//									k = e.nextElement();
-//									if (k instanceof ImageItem) continue;
-//									try {
-//										update(k, components.get(k), false);
-//									} catch (RuntimeException ex) {
-////										components.remove(k);
-//										ex.printStackTrace();
-//									}
-//								}
-//							}
-//						}
-//					} catch (Throwable e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}.start();
+			new Thread("LCDUIExtensions") {
+				public void run() {
+					try {
+						while (true) {
+							synchronized (updateLock) {
+								updateLock.wait(UPDATE_INTERVAL);
+							}
+							if (!isForeground()) continue;
+							synchronized (components) {
+								Object k;
+								for (Enumeration e = components.keys(); e.hasMoreElements(); ) {
+									k = e.nextElement();
+									if (k instanceof ImageItem) continue;
+									try {
+										update(k, components.get(k), false);
+									} catch (RuntimeException ex) {
+										ex.printStackTrace();
+									}
+								}
+							}
+						}
+					} catch (Throwable e) {
+						e.printStackTrace();
+					}
+				}
+			}.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -92,14 +92,15 @@ public class LCDUIExtensions {
 	}
 	
 	public static void setColor(StringItem item, int color) {
+		if (item.getAppearanceMode() == Item.BUTTON && LCDUIInvoker1.getCommandCount(item) > 0) {
+			setButtonTextColor(item, color);
+			return;
+		}
 		if (item.getAppearanceMode() != Item.PLAIN) {
 			throw new IllegalArgumentException("StringItem appearance mode must be set to plain");
 		}
-//		if (item.getLabel() != null && !"".equals(item.getLabel())) {
-//			throw new IllegalArgumentException("StringItem must not have label");
-//		}
 		StringItemParams p = null;
-		synchronized(components) {
+		synchronized (components) {
 			try {
 				p = (StringItemParams) components.get(item);
 			} catch (Exception e) {} // ClassCastException
@@ -115,7 +116,7 @@ public class LCDUIExtensions {
 	
 	public static void setLabelColor(StringItem item, int color) {
 		StringItemParams p = null;
-		synchronized(components) {
+		synchronized (components) {
 			try {
 				p = (StringItemParams) components.get(item);
 			} catch (Exception e) {} // ClassCastException
@@ -132,7 +133,7 @@ public class LCDUIExtensions {
 		if (item.getAppearanceMode() != Item.PLAIN) {
 			throw new IllegalArgumentException("StringItem appearance mode must be set to plain");
 		}
-		synchronized(components) {
+		synchronized (components) {
 			StringItemParams p = null;
 			try {
 				p = (StringItemParams) components.get(item);
@@ -145,58 +146,17 @@ public class LCDUIExtensions {
 		}
 	}
 	
-//	public static void setButtonText(ImageItem item, String text) {
-//		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
-//			throw new IllegalArgumentException("ImageItem must be button");
-//		}
-//		checkError(_setImageItemButtonText(getItemHandle(item), getToolkitHandle(), text));
-//	}
-	
 	// use with LAYOUT_EXPAND
 	public static void setButtonIcon(StringItem item, Image image) {
-		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
-			throw new IllegalArgumentException("ImageItem must be button");
-		}
-		StringItemParams p = null;
-		synchronized(components) {
-			try {
-				p = (StringItemParams) components.get(item);
-			} catch (Exception e) {} // ClassCastException
-			if (p == null) {
-				components.put(item, p = new StringItemParams());
-			}
-		}
-		ImageItem imgItem = image != null ?
-				p.icon != null ? p.icon :
-					new ImageItem(null, image, 0, null, Item.BUTTON) : null;
-		// store icon so it won't get garbage collected
-		p.icon = imgItem;
-		if (p.buttonFlags == 0) {
-			p.buttonFlags = KAknButtonSizeFitText | KAknButtonTextLeft;
-		}
-		
-		ToolkitInvoker inv = ToolkitInvoker.getToolkitInvoker();
-		synchronized(inv.getToolkit()) {
-			checkError(_setStringItemButtonIcon(inv.itemGetHandle(item),
-					inv.toolkitGetHandle(inv.getToolkit()),
-					image != null ? inv.itemGetHandle(imgItem) : 0,
-							p.buttonFlags));
-		}
-		checkError(_setStringItemButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
-				image != null ? image.getHeight() +
-						((p.buttonFlags & KAknButtonNoFrame) != 0 ? 8 : 0) : 0));
-		item.setPreferredSize(640, -1);
-		
-		LCDUIInvoker1.itemRefreshForm(item);
+		setButtonIcon(item, image == null ? null : new ImageItem(null, image, 0, null, Item.BUTTON));
 	}
-	
 
 	public static void setButtonIcon(StringItem item, ImageItem image) {
 		if (item.getAppearanceMode() != Item.BUTTON || LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("ImageItem must be button");
 		}
 		StringItemParams p = null;
-		synchronized(components) {
+		synchronized (components) {
 			try {
 				p = (StringItemParams) components.get(item);
 			} catch (Exception e) {} // ClassCastException
@@ -207,20 +167,15 @@ public class LCDUIExtensions {
 		// store icon so it won't get garbage collected
 		p.icon = image;
 		if (p.buttonFlags == 0) {
-			p.buttonFlags = KAknButtonSizeFitText | KAknButtonTextLeft;
+			p.buttonFlags = KAknButtonSizeFitText;
 		}
 		
 		ToolkitInvoker inv = ToolkitInvoker.getToolkitInvoker();
-		synchronized(inv.getToolkit()) {
-			checkError(_setStringItemButtonIcon(inv.itemGetHandle(item),
-					inv.toolkitGetHandle(inv.getToolkit()),
-					image != null ? inv.itemGetHandle(image) : 0,
-							p.buttonFlags));
-		}
-		checkError(_setStringItemButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
-				image != null ? image.getImage().getHeight() +
-						((p.buttonFlags & KAknButtonNoFrame) != 0 ? 8 : 0) : 0));
-		item.setPreferredSize(640, -1);
+		checkError(_setStringItemButtonIcon(inv.itemGetHandle(item),
+				inv.toolkitGetHandle(inv.getToolkit()),
+				image != null ? inv.itemGetHandle(image) : 0,
+						p.buttonFlags));
+		updateButtonSize(item, p);
 		
 		LCDUIInvoker1.itemRefreshForm(item);
 	}
@@ -228,7 +183,7 @@ public class LCDUIExtensions {
 	// for calling setImage()
 	public static ImageItem getButtonIconItem(StringItem item) {
 		StringItemParams p = null;
-		synchronized(components) {
+		synchronized (components) {
 			try {
 				p = (StringItemParams) components.get(item);
 			} catch (Exception e) {} // ClassCastException
@@ -266,7 +221,7 @@ public class LCDUIExtensions {
 			throw new IllegalArgumentException("flags");
 		}
 		StringItemParams p = null;
-		synchronized(components) {
+		synchronized (components) {
 			try {
 				p = (StringItemParams) components.get(item);
 			} catch (Exception e) {} // ClassCastException
@@ -276,10 +231,7 @@ public class LCDUIExtensions {
 		}
 		p.buttonFlags = flags;
 		checkError(_setStringItemButtonFlags(getItemHandle(item), getToolkitHandle(), flags));
-		checkError(_setStringItemButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
-				p.icon != null ? p.icon.getImage().getHeight() +
-						((p.buttonFlags & KAknButtonNoFrame) != 0 ? 8 : 0) : 0));
-		item.setPreferredSize(640, -1);
+		updateButtonSize(item, p);
 		
 		LCDUIInvoker1.itemRefreshForm(item);
 	}
@@ -316,7 +268,7 @@ public class LCDUIExtensions {
 		color = toBGR(color);
 
 		StringItemParams p = null;
-		synchronized(components) {
+		synchronized (components) {
 			try {
 				p = (StringItemParams) components.get(item);
 			} catch (Exception e) {} // ClassCastException
@@ -331,7 +283,7 @@ public class LCDUIExtensions {
 	}
 	
 	public static void unregisterExtension(Object component) {
-		synchronized(components) {
+		synchronized (components) {
 			components.remove(component);
 			if (component instanceof Form) {
 				Form form = (Form) component;
@@ -342,7 +294,7 @@ public class LCDUIExtensions {
 	}
 	
 	public static void update() {
-		synchronized(updateLock) {
+		synchronized (updateLock) {
 			updateLock.notify();
 		}
 	}
@@ -361,7 +313,13 @@ public class LCDUIExtensions {
 	    return displayable != null && displayable.isShown();
 	}
 	
-	
+
+	private static void updateButtonSize(StringItem item, StringItemParams p) {
+		checkError(_setStringItemButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
+				p.icon != null ? p.icon.getImage().getHeight() +
+						((p.buttonFlags & KAknButtonNoFrame) != 0 ? 8 : 0) : 0));
+		item.setPreferredSize(640, -1);
+	}
 	
 	static void update(Object item, Object p, boolean forced) {
 		if (item instanceof StringItem) {
@@ -382,10 +340,7 @@ public class LCDUIExtensions {
 			return;
 		}
 		if (forced) {
-			checkError(_setStringItemButtonMinimumSize(getItemHandle(item), getToolkitHandle(),
-					p.icon != null ? p.icon.getImage().getHeight() +
-							((p.buttonFlags & KAknButtonNoFrame) != 0 ? 8 : 0) : 0));
-			item.setPreferredSize(640, -1);
+			updateButtonSize(item, p);
 		}
 		if (p.buttonColorSet) {
 			if (p.buttonColorSet) {
@@ -398,7 +353,7 @@ public class LCDUIExtensions {
 			return;
 		}
 		if (p.labelColorSet || p.contentColorSet) {
-			synchronized(ToolkitInvoker.getToolkitInvoker().getToolkit()) {
+			synchronized (ToolkitInvoker.getToolkitInvoker().getToolkit()) {
 				checkError(
 				_setStringItemParams(
 						getItemHandle(item), getToolkitHandle(),
@@ -441,7 +396,6 @@ public class LCDUIExtensions {
 
 	private static native int _setStringItemButtonTooltipText(int item, int toolkit, String text);
 	private static native int _setStringItemButtonIcon(int item, int toolkit, int image, int flags);
-//	private static native int _setImageItemButtonText(int item, int toolkit, String text);
 	private static native int _setImageItemButtonTooltipText(int item, int toolkit, String text);
 	private static native int _setStringItemButtonFlags(int item, int toolkit, int flags);
 	private static native int _setStringItemButtonAlignment(int item, int toolkit, int hor, int ver, int icon);

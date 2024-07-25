@@ -18,10 +18,10 @@ LOCAL_C void SetStringItemParamsL
 	CMIDStringItem* control = (CMIDStringItem*) aStringItem;
 	if (aLabelColorSet) {
 		TRgb labelColor = TRgb(aLabelColor);
-		CCoeControl* labelControl = control->ComponentControl(0);
+		CMIDItemLabel* labelControl = (CMIDItemLabel*) control->ComponentControl(0);
 		if (labelControl != NULL) {
-			AknLayoutUtils::OverrideControlColorL(*labelControl, EColorLabelText, labelColor);
-			if (!aContentColorSet && !aStrikethrough) return;
+			*(unsigned int *)((unsigned int)labelControl + 88u) = color.Internal();
+//			AknLayoutUtils::OverrideControlColorL(*labelControl, EColorLabelText, labelColor);
 			TInt len = labelControl->CountComponentControls();
 			for (TInt i = 0; i < len; ++i) {
 				CEikLabel* l = (CEikLabel*) labelControl->ComponentControl(i);
@@ -38,21 +38,20 @@ LOCAL_C void SetStringItemParamsL
 	}
 	TRgb color = TRgb(aColor);
 	if (aContentColorSet) {
-//		AknLayoutUtils::OverrideControlColorL(*label, EColorLabelText, color);
 		// label->iColor = color;
 		*(unsigned int *)((unsigned int)label + 88u) = color.Internal();
+//		AknLayoutUtils::OverrideControlColorL(*label, EColorLabelText, color);
 	}
-	if (aStrikethrough) {
-		TInt len = label->CountComponentControls();
-		for (TInt i = 0; i < len; ++i) {
-			CCoeControl* t = label->ComponentControl(i);
-			if (t == NULL) continue;
-			if (CEikLabel* l = dynamic_cast<CEikLabel*>(t)) {
-	//			if (aContentColorSet)
-	//				t->OverrideColorL(EColorLabelText, color);
+	TInt len = label->CountComponentControls();
+	for (TInt i = 0; i < len; ++i) {
+		CCoeControl* t = label->ComponentControl(i);
+		if (t == NULL) continue;
+		if (CEikLabel* l = dynamic_cast<CEikLabel*>(t)) {
+			if (aContentColorSet)
+				t->OverrideColorL(EColorLabelText, color);
+			if (aStrikethrough)
 				l->SetStrikethrough(ETrue);
-				t->DrawNow();
-			}
+			t->DrawNow();
 		}
 	}
 }
@@ -110,28 +109,24 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageItem
 	return toolkit->ExecuteTrap(&SetImageItemTooltipL, imageItem, (const TDesC*)&text);
 }
 
-LOCAL_C void SetImageItemTextL(MMIDImageItem* aImageItem, const TDesC* aText) {
-	CCoeControl* control = (CMIDImageItem*) aImageItem;
-//	if (control->CountComponentControls() < 2) {
-//		User::Leave(KErrNotSupported);
-//		return;
-//	}
-	control = control->ComponentControl(1);
-	CAknButton* button = (CAknButton*) control;
-	button->SetButtonFlags(KAknButtonSizeFitText);
-	button->State()->SetTextL(*aText);
-	button->SetSize(button->MinimumSize());
-	button->DrawNow();
-}
-
-JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageItemButtonText
-(JNIEnv *aEnv, jclass, jint aImageItem, jint aToolkit, jstring aText)
-{
-	MMIDImageItem* imageItem = MIDUnhandObject<MMIDImageItem>(aImageItem);
-	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	RJString text(*aEnv,aText);
-	return toolkit->ExecuteTrap(&SetImageItemTextL, imageItem, (const TDesC*)&text);
-}
+//LOCAL_C void SetImageItemTextL(MMIDImageItem* aImageItem, const TDesC* aText) {
+//	CCoeControl* control = (CMIDImageItem*) aImageItem;
+//	control = control->ComponentControl(1);
+//	CAknButton* button = (CAknButton*) control;
+//	button->SetButtonFlags(KAknButtonSizeFitText);
+//	button->State()->SetTextL(*aText);
+//	button->SetSize(button->MinimumSize());
+//	button->DrawNow();
+//}
+//
+//JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageItemButtonText
+//(JNIEnv *aEnv, jclass, jint aImageItem, jint aToolkit, jstring aText)
+//{
+//	MMIDImageItem* imageItem = MIDUnhandObject<MMIDImageItem>(aImageItem);
+//	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
+//	RJString text(*aEnv,aText);
+//	return toolkit->ExecuteTrap(&SetImageItemTextL, imageItem, (const TDesC*)&text);
+//}
 
 LOCAL_C void SetStringItemImageL(MMIDStringItem* aStringItem, MMIDImageItem* aImageItem, TInt aFlags) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
@@ -145,11 +140,7 @@ LOCAL_C void SetStringItemImageL(MMIDStringItem* aStringItem, MMIDImageItem* aIm
 			imageControl = imageControl->ComponentControl(1);
 			if (CAknButton* imgButton = dynamic_cast<CAknButton*>(imageControl)) {
 				icon = const_cast<CGulIcon*>(imgButton->State()->Icon());
-//				if (icon)
-//					control->SetSize(TSize(old.iWidth, icon->Bitmap()->SizeInPixels().iHeight));
 			}
-		} else {
-//			control->SetSize(TSize(old.iWidth, min.iHeight));
 		}
 		button->SetButtonFlags(aFlags);
 		button->State()->SetIcon(icon);
@@ -173,9 +164,6 @@ LOCAL_C void SetStringItemButtonFlagsL(MMIDStringItem* aStringItem, TInt aFlags)
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		button->SetButtonFlags(aFlags);
-//		if ((aFlags & KAknButtonTextLeft) != 0) {
-//			button->SetTextHorizontalAlignment(CGraphicsContext::ELeft);
-//		}
 		button->DrawNow();
 		return;
 	}
