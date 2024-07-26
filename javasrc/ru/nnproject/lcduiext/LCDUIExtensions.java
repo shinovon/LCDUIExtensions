@@ -77,7 +77,7 @@ public class LCDUIExtensions {
 			p.contentColor = toBGR(color);
 			p.contentColorSet = true;
 		}
-		update(item, p, false);
+		update(item, p, false, true);
 		_LCDUIInvoker1.itemRefreshForm(item);
 	}
 	
@@ -93,7 +93,7 @@ public class LCDUIExtensions {
 			p.labelColor = toBGR(color);
 			p.labelColorSet = true;
 		}
-		update(item, p, false);
+		update(item, p, false, true);
 	}
 
 	public static void setStrikethrough(StringItem item, boolean strikethrough) {
@@ -109,7 +109,7 @@ public class LCDUIExtensions {
 				components.put(item, p = new StringItemParams());
 			}
 			p.strikethrough = strikethrough;
-			update(item, p, false);
+			update(item, p, false, true);
 		}
 	}
 	
@@ -244,6 +244,9 @@ public class LCDUIExtensions {
 	}
 	
 	public static void setButtonText(StringItem item, String text) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
+			throw new IllegalArgumentException("StringItem must be button");
+		}
 		if (text == null) text = "";
 		checkError(_setButtonText(getItemHandle(item), getToolkitHandle(), text));
 		
@@ -295,7 +298,7 @@ public class LCDUIExtensions {
 	}
 	
 	public static void update(Item item) {
-		update(item, null, true);
+		update(item, null, true, false);
 		_LCDUIInvoker1.itemRefreshForm(item);
 	}
 	
@@ -325,18 +328,18 @@ public class LCDUIExtensions {
 		item.setPreferredSize(640, -1); // will be limited to actual screen width in native
 	}
 	
-	static void update(Object item, Object p, boolean forced) {
+	static void update(Object item, Object p, boolean resize, boolean drawNow) {
 		if (item instanceof StringItem) {
-			update((StringItem) item, (StringItemParams) p, forced);
+			update((StringItem) item, (StringItemParams) p, resize, drawNow);
 			return;
 		}
 		if (item instanceof ImageItem) {
-			update(components.get(item), null, forced);
+			update(components.get(item), null, resize, drawNow);
 			return;
 		}
 	}
 	
-	static void update(StringItem item, StringItemParams p, boolean forced) {
+	static void update(StringItem item, StringItemParams p, boolean resize, boolean drawNow) {
 		if (item == null) return;
 		try {
 			if (p == null) p = (StringItemParams) components.get(item);
@@ -344,7 +347,7 @@ public class LCDUIExtensions {
 			return;
 		}
 		if (p == null) return;
-		if (forced) {
+		if (resize) {
 			updateButtonSize(item, p);
 		}
 		if (p.buttonColorSet) {
@@ -366,7 +369,7 @@ public class LCDUIExtensions {
 						p.contentColor,
 						p.labelColorSet,
 						p.contentColorSet,
-						p.strikethrough, forced
+						p.strikethrough, drawNow
 				));
 			}
 		}
@@ -433,7 +436,7 @@ public class LCDUIExtensions {
 											(_LCDUIInvoker1.getItemScreen((Item) k) != d))
 										continue;
 									try {
-										update(k, components.get(k), false);
+										update(k, components.get(k), false, false);
 										if (redrawItem == null) redrawItem = (Item) k;
 									} catch (RuntimeException ex) {
 										ex.printStackTrace();
