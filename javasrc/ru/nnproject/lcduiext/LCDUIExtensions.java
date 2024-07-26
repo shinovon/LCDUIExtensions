@@ -284,9 +284,13 @@ public class LCDUIExtensions {
 	 * @deprecated use {@link Displayable#isShown()}
 	 */
 	public static boolean isForeground() {
-		MIDlet midlet = LegacyRtPort.getMidlet();
-	    Displayable displayable = Display.getDisplay(midlet).getCurrent();
+	    Displayable displayable = getCurrent();
 	    return displayable != null && displayable.isShown();
+	}
+	
+	static Displayable getCurrent() {
+		MIDlet midlet = LegacyRtPort.getMidlet();
+		return Display.getDisplay(midlet).getCurrent();
 	}
 	
 	// private
@@ -339,7 +343,7 @@ public class LCDUIExtensions {
 						p.contentColor,
 						p.labelColorSet,
 						p.contentColorSet,
-						p.strikethrough
+						p.strikethrough, forced
 				));
 			}
 		}
@@ -369,7 +373,8 @@ public class LCDUIExtensions {
 	private static native int _setStringItemParams(int item, int toolkit,
 			int labelColor, int contentColor,
 			boolean labelColorSet, boolean contentColorSet,
-			boolean strikethrough);
+			boolean strikethrough,
+			boolean drawNow);
 
 	private static native int _setButtonTooltipText(int item, int toolkit, String text);
 	private static native int _setButtonIcon(int item, int toolkit, int image, int flags);
@@ -392,18 +397,27 @@ public class LCDUIExtensions {
 							synchronized (updateLock) {
 								updateLock.wait(UPDATE_INTERVAL);
 							}
-							if (!isForeground()) continue;
+							Displayable d = getCurrent();
+							if (!(d instanceof Form) || !d.isShown()) continue;
+							Item redrawItem = null;
 							synchronized (components) {
+								if (components.isEmpty()) continue;
 								Object k;
 								for (Enumeration e = components.keys(); e.hasMoreElements(); ) {
 									k = e.nextElement();
-									if (k instanceof ImageItem) continue;
+									if (k instanceof ImageItem ||
+											(_LCDUIInvoker1.getItemScreen((Item) k) != d))
+										continue;
 									try {
 										update(k, components.get(k), false);
+										if (redrawItem == null) redrawItem = (Item) k;
 									} catch (RuntimeException ex) {
 										ex.printStackTrace();
 									}
 								}
+							}
+							if (redrawItem != null) {
+								_LCDUIInvoker1.itemRefreshForm(redrawItem);
 							}
 						}
 					} catch (Throwable e) {

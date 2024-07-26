@@ -8,17 +8,18 @@
 #include <gulicon.h>
 
 LOCAL_C void SetStringItemParamsL
-(MMIDStringItem* aStringItem,
+ (MMIDStringItem* aStringItem,
 	TInt aLabelColor,
 	TInt aColor,
 	TBool aLabelColorSet,
 	TBool aContentColorSet,
-	TBool aStrikethrough)
+	TBool aStrikethrough,
+	TBool aDrawNow)
 {
-	CMIDStringItem* control = (CMIDStringItem*) aStringItem;
+	CMIDStringItem* item = (CMIDStringItem*) aStringItem;
 	if (aLabelColorSet) {
 		TRgb color = TRgb(aLabelColor);
-		CMIDItemLabel* label = (CMIDItemLabel*) control->ComponentControl(0);
+		CMIDItemLabel* label = (CMIDItemLabel*) item->ComponentControl(0);
 		if (label) {
 			// label->iColor = color;
 			*(unsigned int *)((unsigned int)label + 88u) = color.Internal();
@@ -28,16 +29,22 @@ LOCAL_C void SetStringItemParamsL
 			for (TInt i = 0; i < len; ++i) {
 				CEikLabel* l = (CEikLabel*) label->ComponentControl(i);
 				l->OverrideColorL(EColorLabelText, color);
-				if (l->DrawableWindow())
+				if (aDrawNow && l->DrawableWindow())
 					l->DrawNow();
 			}
-			if (label->DrawableWindow())
-				label->DrawNow();
+			if (aDrawNow) {
+				if (label->DrawableWindow()) {
+					label->DrawNow();
+				} else {
+					// item->iForm->DrawNow();
+					((CCoeControl *)*((unsigned int *)label + 25u))->DrawNow();
+				}
+			}
 		}
 	}
 	
 	if (!aContentColorSet && !aStrikethrough) return;
-	CMIDItemLabel* label = (CMIDItemLabel*) control->ComponentControl(1);
+	CMIDItemLabel* label = (CMIDItemLabel*) item->ComponentControl(1);
 	if (label == NULL) {
 		User::Leave(KErrGeneral);
 		return;
@@ -58,23 +65,39 @@ LOCAL_C void SetStringItemParamsL
 				l->OverrideColorL(EColorLabelText, color);
 			if (aStrikethrough)
 				l->SetStrikethrough(ETrue);
-			if (l->DrawableWindow())
+			if (aDrawNow && l->DrawableWindow())
 				l->DrawDeferred();
 		}
-		if (label->DrawableWindow())
+	}
+	if (aDrawNow) {
+		if (label->DrawableWindow()) {
 			label->DrawNow();
+		} else {
+			// item->iForm->DrawNow();
+			((CCoeControl *)*((unsigned int *)label + 25u))->DrawNow();
+		}
 	}
 }
 
 JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemParams
-(JNIEnv *, jclass, jint aStringItem, jint aToolkit, jint aLabelColor, jint aColor, jboolean aLabelColorSet, jboolean aContentColorSet, jboolean aStrikethrough)
+ (JNIEnv *, jclass,
+	jint aStringItem,
+	jint aToolkit,
+	jint aLabelColor,
+	jint aColor,
+	jboolean aLabelColorSet,
+	jboolean aContentColorSet,
+	jboolean aStrikethrough,
+	jboolean aDrawNow)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
 	TBool labelColorSet = aLabelColorSet == JNI_TRUE;
 	TBool colorSet = aContentColorSet == JNI_TRUE;
 	TBool strikethrough = aStrikethrough == JNI_TRUE;
-	return toolkit->ExecuteTrap(&SetStringItemParamsL, stringItem, aLabelColor, aColor, labelColorSet, colorSet, strikethrough);
+	TBool drawNow = aDrawNow == JNI_TRUE;
+	return toolkit->ExecuteTrap(&SetStringItemParamsL,
+		stringItem, aLabelColor, aColor, labelColorSet, colorSet, strikethrough, drawNow);
 }
 
 LOCAL_C void SetStringItemTooltipL(MMIDStringItem* aStringItem, const TDesC* aText) {
@@ -89,7 +112,7 @@ LOCAL_C void SetStringItemTooltipL(MMIDStringItem* aStringItem, const TDesC* aTe
 }
 
 JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTooltipText
-(JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jstring aText)
+ (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jstring aText)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
@@ -111,7 +134,7 @@ LOCAL_C void SetImageItemTooltipL(MMIDImageItem* aImageItem, const TDesC* aText)
 }
 
 JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageTooltipText
-(JNIEnv *aEnv, jclass, jint aImageItem, jint aToolkit, jstring aText)
+ (JNIEnv *aEnv, jclass, jint aImageItem, jint aToolkit, jstring aText)
 {
 	MMIDImageItem* imageItem = MIDUnhandObject<MMIDImageItem>(aImageItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
@@ -266,8 +289,8 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonMin
 }
 
 LOCAL_C void SetUnderlinedL(MMIDStringItem* aStringItem, TBool aUnderlined) {
-	CCoeControl* control = (CMIDStringItem*) aStringItem;
-	CMIDItemLabel* label = (CMIDItemLabel*) control->ComponentControl(0);
+	CMIDStringItem* item = (CMIDStringItem*) aStringItem;
+	CMIDItemLabel* label = (CMIDItemLabel*) item->ComponentControl(0);
 	if (label) {
 		TInt len = label->CountComponentControls();
 		for (TInt i = 0; i < len; ++i) {
@@ -276,8 +299,12 @@ LOCAL_C void SetUnderlinedL(MMIDStringItem* aStringItem, TBool aUnderlined) {
 			if (l->DrawableWindow())
 				l->DrawNow();
 		}
-		if (label->DrawableWindow())
+		if (label->DrawableWindow()) {
 			label->DrawNow();
+		} else {
+			// item->iForm->DrawNow();
+			((CCoeControl *)*((unsigned int *)label + 25u))->DrawNow();
+		}
 	}
 }
 
