@@ -194,13 +194,21 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFla
 	return toolkit->ExecuteTrap(&SetButtonFlagsL, stringItem, aFlags);
 }
 
-LOCAL_C void SetButtonAlignmentL(MMIDStringItem* aStringItem, TInt aHorizontal, TInt aVertical, TInt aIcon) {
+LOCAL_C void SetButtonAlignmentL(MMIDStringItem* aStringItem,
+	TInt aHorizontal, TInt aVertical, TInt aTextAndIcon, TInt aIconHorizontal, TInt aIconVertical) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
-		button->SetTextHorizontalAlignment((CGraphicsContext::TTextAlign) aHorizontal);
-		button->SetTextVerticalAlignment((CAknButton::TAlignment) aVertical);
-		button->SetTextAndIconAlignment((CAknButton::TTextAndIconAlignment) aIcon);
+		if (aHorizontal != -1)
+			button->SetTextHorizontalAlignment((CGraphicsContext::TTextAlign) aHorizontal);
+		if (aVertical != -1)
+			button->SetTextVerticalAlignment((CAknButton::TAlignment) aVertical);
+		if (aTextAndIcon != -1)
+			button->SetTextAndIconAlignment((CAknButton::TTextAndIconAlignment) aTextAndIcon);
+		if (aIconHorizontal != -1)
+			button->SetIconHorizontalAlignment((CAknButton::TAlignment) aIconHorizontal);
+		if (aIconVertical != -1)
+			button->SetIconVerticalAlignment((CAknButton::TAlignment) aIconVertical);
 		if (button->DrawableWindow())
 			button->DrawNow();
 		return;
@@ -209,11 +217,13 @@ LOCAL_C void SetButtonAlignmentL(MMIDStringItem* aStringItem, TInt aHorizontal, 
 }
 
 JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonAlignment
- (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jint aHorizontal, jint aVertical, jint aIcon)
+ (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit,
+	 jint aHorizontal, jint aVertical, jint aIcon, jint aIconHorizontal, jint aIconVertical)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
-	return toolkit->ExecuteTrap(&SetButtonAlignmentL, stringItem, aHorizontal, aVertical, aIcon);
+	return toolkit->ExecuteTrap(&SetButtonAlignmentL, stringItem,
+		aHorizontal, aVertical, aIcon, aIconHorizontal, aIconVertical);
 }
 
 LOCAL_C void SetButtonTextL(MMIDStringItem* aStringItem, const TDesC* aText) {
@@ -315,4 +325,25 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringIte
 	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
 	TBool underline = aUnderline == JNI_TRUE;
 	return toolkit->ExecuteTrap(&SetUnderlinedL, stringItem, underline);
+}
+
+LOCAL_C void SetButtonDimmedL(MMIDStringItem* aStringItem, TBool aDimmed) {
+	CCoeControl* control = (CMIDStringItem*) aStringItem;
+	control = control->ComponentControl(1);
+	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
+		button->SetDimmed(aDimmed);
+		if (button->DrawableWindow())
+			control->DrawNow();
+		return;
+	}
+	User::Leave(KErrNotSupported);
+}
+
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonDimmed
+ (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jboolean aDimmed)
+{
+	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
+	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
+	TBool dimmed = aDimmed == JNI_TRUE;
+	return toolkit->ExecuteTrap(&SetButtonDimmedL, stringItem, dimmed);
 }

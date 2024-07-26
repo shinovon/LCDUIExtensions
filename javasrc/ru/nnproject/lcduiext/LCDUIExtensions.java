@@ -26,21 +26,21 @@ public class LCDUIExtensions {
 	// No frame is drawn for the button, useful for icon buttons.
 	public static final int KAknButtonNoFrame = 0x00000004;
 	
-	public static final int BUTTON_HORIZONTAL_LEFT = 0;
-	public static final int BUTTON_HORIZONTAL_CENTER = 1;
-	public static final int BUTTON_HORIZONTAL_RIGHT = 2;
+	public static final int TTextAlign_Left = 0;
+	public static final int TTextAlign_Center = 1;
+	public static final int TTextAlign_Right = 2;
 	
-	public static final int BUTTON_VERTICAL_CENTER = 0;
-	public static final int BUTTON_VERTICAL_TOP = 1;
-	public static final int BUTTON_VERTICAL_BOTTOM = 2;
-	public static final int BUTTON_VERTICAL_RIGHT = 3;
-	public static final int BUTTON_VERTICAL_LEFT = 4;
+	public static final int TAlignment_Center = 0;
+	public static final int TAlignment_Top = 1;
+	public static final int TAlignment_Bottom = 2;
+	public static final int TAlignment_Right = 3;
+	public static final int TAlignment_Left = 4;
 	
-	public static final int BUTTON_ICON_BEFORE_TEXT = 0;
-	public static final int BUTTON_ICON_AFTER_TEXT = 1;
-	public static final int BUTTON_ICON_UNDER_TEXT = 2;
-	public static final int BUTTON_ICON_OVER_TEXT = 3;
-	public static final int BUTTON_ICON_OVERLAY = 4;
+	public static final int TTextAndIconAlignment_IconBeforeText = 0;
+	public static final int TTextAndIconAlignment_IconAfterText = 1;
+	public static final int TTextAndIconAlignment_IconUnderText = 2;
+	public static final int TTextAndIconAlignment_IconOverText = 3;
+	public static final int TTextAndIconAlignment_IconOverlay = 4;
 	
 	static final int UPDATE_INTERVAL = 2000;
 	
@@ -211,21 +211,36 @@ public class LCDUIExtensions {
 		_LCDUIInvoker1.itemRefreshForm(item);
 	}
 	
-	public static void setButtonAlignment(StringItem item, int horizontal, int vertical, int icon) {
+	/**
+	 * @param item Buttom item
+	 * @param horizontal TTextAlign or -1
+	 * @param vertical TAlignment or -1
+	 * @param textAndIcon TTextAndIconAlignment or -1
+	 * @param iconHorizontal TAlignment or -1
+	 * @param iconVertical TAlignment or -1
+	 */
+	public static void setButtonAlignment(StringItem item,
+			int horizontal, int vertical, int textAndIcon, int iconHorizontal, int iconVertical) {
 		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
 			throw new IllegalArgumentException("StringItem must be button");
 		}
-		if (horizontal < 0 || horizontal > 2) {
+		if (horizontal < -1 || horizontal > 2) {
 			throw new IllegalArgumentException("horizontal");
 		}
-		if (vertical < 0 || horizontal > 4) {
+		if (vertical < -1 || horizontal > 4) {
 			throw new IllegalArgumentException("vertical");
 		}
-		if (horizontal < 0 || horizontal > 4) {
+		if (textAndIcon < -1 || textAndIcon > 4) {
 			throw new IllegalArgumentException("icon");
 		}
+		if (iconHorizontal < -1 || iconHorizontal > 4) {
+			throw new IllegalArgumentException("iconHorizontal");
+		}
+		if (iconVertical < -1 || iconVertical > 4) {
+			throw new IllegalArgumentException("iconVertical");
+		}
 		checkError(_setButtonAlignment(getItemHandle(item), getToolkitHandle(),
-				horizontal, vertical, icon));
+				horizontal, vertical, textAndIcon, iconHorizontal, iconVertical));
 	}
 	
 	public static void setButtonText(StringItem item, String text) {
@@ -252,6 +267,14 @@ public class LCDUIExtensions {
 		p.buttonColorSet = true;
 		
 		checkError(_setButtonTextColor(getItemHandle(item), getToolkitHandle(), color));
+	}
+	
+	public static void setButtonDimmed(StringItem item, boolean dimmed) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
+			throw new IllegalArgumentException("StringItem must be button");
+		}
+		
+		checkError(_setButtonDimmed(getItemHandle(item), getToolkitHandle(), dimmed));
 	}
 	
 	public static void unregisterExtension(Object component) {
@@ -380,11 +403,12 @@ public class LCDUIExtensions {
 	private static native int _setButtonIcon(int item, int toolkit, int image, int flags);
 	private static native int _setImageTooltipText(int item, int toolkit, String text);
 	private static native int _setButtonFlags(int item, int toolkit, int flags);
-	private static native int _setButtonAlignment(int item, int toolkit, int hor, int ver, int icon);
+	private static native int _setButtonAlignment(int item, int toolkit, int hor, int ver, int icon, int iconHor, int iconVer);
 	private static native int _setButtonText(int item, int toolkit, String text);
 	private static native int _setButtonTextColor(int item, int toolkit, int color);
 	private static native int _setButtonMinimumSize(int item, int toolkit, int height);
 	private static native int _setStringItemUnderlined(int item, int toolkit, boolean underlined);
+	private static native int _setButtonDimmed(int item, int toolkit, boolean dimmed);
 	
 	static {
 		try {
