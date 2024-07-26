@@ -17,8 +17,7 @@ const FuncTable funcTable[] = {
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTooltipText", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTooltipText},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageFont", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageFont},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageTooltipText", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageTooltipText},
-   { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemParams", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemParams},
-   { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemUnderlined", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemUnderlined}
+   { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemParams", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemParams}
 };
 
 IMPORT_C TFunc jni_lookup(const char* name);
