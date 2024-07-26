@@ -9,6 +9,7 @@ const FuncTable funcTable[] = {
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonAlignment", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonAlignment},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonDimmed", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonDimmed},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFlags", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFlags},
+   { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFont", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFont},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonIcon", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonIcon},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonMinimumSize", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonMinimumSize},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonText", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonText},

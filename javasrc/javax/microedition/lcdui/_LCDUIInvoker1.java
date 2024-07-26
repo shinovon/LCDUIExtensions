@@ -34,5 +34,9 @@ public class _LCDUIInvoker1 {
 	public static Screen getItemScreen(Item item) {
 		return item.iScreen;
 	}
+	
+	public static int getFontHandle(Font font) {
+		return font.iHandle;
+	}
 
 }

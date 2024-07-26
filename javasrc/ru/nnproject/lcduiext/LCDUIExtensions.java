@@ -5,6 +5,7 @@ import java.util.Hashtable;
 
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
@@ -13,6 +14,7 @@ import javax.microedition.lcdui._LCDUIInvoker1;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.midlet.MIDlet;
 
+import com.nokia.mid.ui.FreeSizeFontInvoker;
 import com.nokia.mj.impl.rt.legacy.LegacyRtPort;
 import com.nokia.mj.impl.rt.legacy.ToolkitInvoker;
 import com.nokia.mj.impl.rt.support.Jvm;
@@ -280,6 +282,26 @@ public class LCDUIExtensions {
 		checkError(_setButtonDimmed(getItemHandle(item), getToolkitHandle(), dimmed));
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @param fontStyle {@link Font#STYLE_PLAIN}, or combination of 
+	 * {@link Font#STYLE_BOLD},
+	 * {@link Font#STYLE_ITALIC},
+	 * {@link Font#STYLE_UNDERLINED}
+	 * @param fontHeight Free size height
+	 */
+	public static void setButtonFont(StringItem item, int fontStyle, int fontHeight) {
+		if (item.getAppearanceMode() != Item.BUTTON || _LCDUIInvoker1.getCommandCount(item) == 0) {
+			throw new IllegalArgumentException("StringItem must be button");
+		}
+		Font font = FreeSizeFontInvoker.getFont(0, fontStyle, fontHeight);
+		
+		checkError(_setButtonFont(getItemHandle(item), getToolkitHandle(), _LCDUIInvoker1.getFontHandle(font)));
+		
+		_LCDUIInvoker1.itemRefreshForm(item);
+	}
+	
 	public static void unregisterExtension(Object component) {
 		synchronized (components) {
 			components.remove(component);
@@ -412,6 +434,7 @@ public class LCDUIExtensions {
 	private static native int _setButtonMinimumSize(int item, int toolkit, int height);
 	private static native int _setStringItemUnderlined(int item, int toolkit, boolean underlined);
 	private static native int _setButtonDimmed(int item, int toolkit, boolean dimmed);
+	private static native int _setButtonFont(int item, int toolkit, int font);
 	
 	static {
 		try {

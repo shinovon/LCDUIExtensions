@@ -347,3 +347,17 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonDim
 	TBool dimmed = aDimmed == JNI_TRUE;
 	return toolkit->ExecuteTrap(&SetButtonDimmedL, stringItem, dimmed);
 }
+
+LOCAL_C void SetButtonFontL(MMIDStringItem* aStringItem, MMIDFont* aFont) {
+	aStringItem->SetFontL(aFont);
+}
+
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFont
+ (JNIEnv *aEnv, jclass, jint aStringItem, jint aToolkit, jint aFont)
+{
+	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
+	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
+	MMIDFont* font = MIDUnhandObject<MMIDFont>(aFont);
+	return toolkit->ExecuteTrap(&SetButtonFontL, stringItem, font);
+}
+}
