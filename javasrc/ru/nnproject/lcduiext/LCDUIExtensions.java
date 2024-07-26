@@ -119,8 +119,19 @@ public class LCDUIExtensions {
 		if (item.getAppearanceMode() == Item.BUTTON) {
 			throw new IllegalArgumentException("StringItem must not be button");
 		}
-		ToolkitInvoker inv = ToolkitInvoker.getToolkitInvoker();
-		checkError(_setStringItemUnderlined(inv.itemGetHandle(item), inv.toolkitGetHandle(inv.getToolkit()), underline));
+//		ToolkitInvoker inv = ToolkitInvoker.getToolkitInvoker();
+//		checkError(_setStringItemUnderlined(inv.itemGetHandle(item), inv.toolkitGetHandle(inv.getToolkit()), underline));
+		synchronized (components) {
+			StringItemParams p = null;
+			try {
+				p = (StringItemParams) components.get(item);
+			} catch (Exception e) {} // ClassCastException
+			if (p == null) {
+				components.put(item, p = new StringItemParams());
+			}
+			p.underline = underline ? 1 : 0;
+			update(item, p, false, true);
+		}
 	}
 	
 	// use with LAYOUT_EXPAND
@@ -397,7 +408,9 @@ public class LCDUIExtensions {
 						p.contentColor,
 						p.labelColorSet,
 						p.contentColorSet,
-						p.strikethrough, drawNow
+						p.strikethrough,
+						p.underline,
+						drawNow
 				));
 			}
 		}
@@ -427,7 +440,7 @@ public class LCDUIExtensions {
 	private static native int _setStringItemParams(int item, int toolkit,
 			int labelColor, int contentColor,
 			boolean labelColorSet, boolean contentColorSet,
-			boolean strikethrough,
+			boolean strikethrough, int underline,
 			boolean drawNow);
 
 	private static native int _setButtonTooltipText(int item, int toolkit, String text);
@@ -438,7 +451,7 @@ public class LCDUIExtensions {
 	private static native int _setButtonText(int item, int toolkit, String text);
 	private static native int _setButtonTextColor(int item, int toolkit, int color);
 	private static native int _setButtonMinimumSize(int item, int toolkit, int height);
-	private static native int _setStringItemUnderlined(int item, int toolkit, boolean underlined);
+//	private static native int _setStringItemUnderlined(int item, int toolkit, boolean underlined);
 	private static native int _setButtonDimmed(int item, int toolkit, boolean dimmed);
 	private static native int _setButtonFont(int item, int toolkit, int font);
 	private static native int _setImageFont(int item, int toolkit, int font);

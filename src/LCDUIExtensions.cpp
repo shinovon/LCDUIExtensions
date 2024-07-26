@@ -14,6 +14,7 @@ LOCAL_C void SetStringItemParamsL
 	TBool aLabelColorSet,
 	TBool aContentColorSet,
 	TBool aStrikethrough,
+	TInt aUnderlined,
 	TBool aDrawNow)
 {
 	CMIDStringItem* item = (CMIDStringItem*) aStringItem;
@@ -43,7 +44,7 @@ LOCAL_C void SetStringItemParamsL
 		}
 	}
 	
-	if (!aContentColorSet && !aStrikethrough) return;
+	if (!aContentColorSet && !aStrikethrough && aUnderlined == -1) return;
 	CMIDItemLabel* label = (CMIDItemLabel*) item->ComponentControl(1);
 	if (label == NULL) {
 		User::Leave(KErrGeneral);
@@ -65,6 +66,8 @@ LOCAL_C void SetStringItemParamsL
 				l->OverrideColorL(EColorLabelText, color);
 			if (aStrikethrough)
 				l->SetStrikethrough(ETrue);
+			if (aUnderlined != -1)
+				l->SetUnderlining(aUnderlined == 1);
 			if (aDrawNow && l->DrawableWindow())
 				l->DrawDeferred();
 		}
@@ -88,6 +91,7 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringIte
 	jboolean aLabelColorSet,
 	jboolean aContentColorSet,
 	jboolean aStrikethrough,
+	jint aUnderline,
 	jboolean aDrawNow)
 {
 	MMIDStringItem* stringItem = MIDUnhandObject<MMIDStringItem>(aStringItem);
@@ -97,7 +101,7 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringIte
 	TBool strikethrough = aStrikethrough == JNI_TRUE;
 	TBool drawNow = aDrawNow == JNI_TRUE;
 	return toolkit->ExecuteTrap(&SetStringItemParamsL,
-		stringItem, aLabelColor, aColor, labelColorSet, colorSet, strikethrough, drawNow);
+		stringItem, aLabelColor, aColor, labelColorSet, colorSet, strikethrough, aUnderline, drawNow);
 }
 
 LOCAL_C void SetStringItemTooltipL(MMIDStringItem* aStringItem, const TDesC* aText) {

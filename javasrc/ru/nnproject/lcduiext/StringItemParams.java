@@ -10,6 +10,7 @@ class StringItemParams {
 	boolean contentColorSet;
 	
 	boolean strikethrough;
+	public int underline = -1;
 
 	ImageItem icon;
 	int buttonFlags;
