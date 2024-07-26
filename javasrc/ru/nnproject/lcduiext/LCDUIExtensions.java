@@ -298,6 +298,12 @@ public class LCDUIExtensions {
 		Font font = FreeSizeFontInvoker.getFont(0, fontStyle, fontHeight);
 		
 		checkError(_setButtonFont(getItemHandle(item), getToolkitHandle(), _LCDUIInvoker1.getFontHandle(font)));
+	}
+	
+	public static void setImageFont(ImageItem item, Font font) {
+		if (item == null || font == null) throw new NullPointerException();
+		
+		checkError(_setImageFont(getItemHandle(item), getToolkitHandle(), _LCDUIInvoker1.getFontHandle(font)));
 		
 		_LCDUIInvoker1.itemRefreshForm(item);
 	}
@@ -435,6 +441,7 @@ public class LCDUIExtensions {
 	private static native int _setStringItemUnderlined(int item, int toolkit, boolean underlined);
 	private static native int _setButtonDimmed(int item, int toolkit, boolean dimmed);
 	private static native int _setButtonFont(int item, int toolkit, int font);
+	private static native int _setImageFont(int item, int toolkit, int font);
 	
 	static {
 		try {
@@ -467,7 +474,8 @@ public class LCDUIExtensions {
 								}
 							}
 							if (redrawItem != null) {
-								_LCDUIInvoker1.itemRefreshForm(redrawItem);
+//								_LCDUIInvoker1.itemRefreshForm(redrawItem);
+								update(redrawItem, components.get(redrawItem), false, true);
 							}
 						}
 					} catch (Throwable e) {

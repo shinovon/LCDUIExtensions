@@ -15,6 +15,7 @@ const FuncTable funcTable[] = {
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonText", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonText},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTextColor", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTextColor},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTooltipText", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonTooltipText},
+   { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageFont", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageFont},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageTooltipText", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageTooltipText},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemParams", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemParams},
    { "Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemUnderlined", (unsigned int) Java_ru_nnproject_lcduiext_LCDUIExtensions__1setStringItemUnderlined}

@@ -251,9 +251,9 @@ LOCAL_C void SetButtonColorL(MMIDStringItem* aStringItem, TLogicalColor aType, T
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
 	TRgb rgb = TRgb(aColor);
-	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
+	if (dynamic_cast<CAknButton*>(control)) {
 		control->OverrideColorL(aType, rgb);
-		if (button->DrawableWindow())
+		if (control->DrawableWindow())
 			control->DrawNow();
 		return;
 	}
@@ -279,11 +279,11 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFac
 LOCAL_C void SetButtonMinimumSizeL(MMIDStringItem* aStringItem, TInt aHeight) {
 	CCoeControl* control = (CMIDStringItem*) aStringItem;
 	control = control->ComponentControl(1);
-	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
+	if (dynamic_cast<CAknButton*>(control)) {
 		TSize old = control->Size();
 		TSize min = control->MinimumSize();
 		control->SetSize(TSize(old.iWidth, aHeight > 0 ? aHeight : min.iHeight));
-		if (button->DrawableWindow())
+		if (control->DrawableWindow())
 			control->DrawNow();
 		return;
 	}
@@ -332,7 +332,7 @@ LOCAL_C void SetButtonDimmedL(MMIDStringItem* aStringItem, TBool aDimmed) {
 	control = control->ComponentControl(1);
 	if (CAknButton* button = dynamic_cast<CAknButton*>(control)) {
 		button->SetDimmed(aDimmed);
-		if (button->DrawableWindow())
+		if (control->DrawableWindow())
 			control->DrawNow();
 		return;
 	}
@@ -360,4 +360,30 @@ JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setButtonFon
 	MMIDFont* font = MIDUnhandObject<MMIDFont>(aFont);
 	return toolkit->ExecuteTrap(&SetButtonFontL, stringItem, font);
 }
+
+
+LOCAL_C void SetImageFontL(MMIDImageItem* aImageItem, MMIDFont* aFont) {
+	CMIDImageItem* item = (CMIDImageItem*) aImageItem;
+	CMIDItemLabel* label = (CMIDItemLabel*) item->ComponentControl(0);
+	if (label) {
+		// label->iFont = (CMIDFont*) aFont;
+		*(unsigned int *)((unsigned int)label + 76u) = (unsigned int) aFont;
+		
+		TInt len = label->CountComponentControls();
+		CFont* font = aFont->Font(ETrue);
+		for (TInt i = 0; i < len; ++i) {
+			CEikLabel* l = (CEikLabel*) label->ComponentControl(i);
+			l->SetFont(font);
+		}
+		// don't redraw since it's done in java side
+	}
+}
+
+JNIEXPORT jint JNICALL Java_ru_nnproject_lcduiext_LCDUIExtensions__1setImageFont
+ (JNIEnv *aEnv, jclass, jint aImageItem, jint aToolkit, jint aFont)
+{
+	MMIDImageItem* imageItem = MIDUnhandObject<MMIDImageItem>(aImageItem);
+	CMIDToolkit* toolkit = JavaUnhand<CMIDToolkit>(aToolkit);
+	MMIDFont* font = MIDUnhandObject<MMIDFont>(aFont);
+	return toolkit->ExecuteTrap(&SetImageFontL, imageItem, font);
 }
